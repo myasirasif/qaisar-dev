@@ -1,0 +1,11 @@
+.DS_Store
+.vercel
+.playwright-mcp/
+
+# local screenshots
+/v*.png
+/m2.png
+/proc*.png
+/check.png
+/full.png
+/hero.png
