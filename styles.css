@@ -72,6 +72,7 @@ section[id], header[id] { scroll-margin-top: 4.5rem; }
   position: sticky;
   top: 0;
   z-index: 10;
+  isolation: isolate;
   background: color-mix(in srgb, var(--paper) 88%, transparent);
   -webkit-backdrop-filter: blur(10px);
           backdrop-filter: blur(10px);
@@ -80,6 +81,7 @@ section[id], header[id] { scroll-margin-top: 4.5rem; }
 @supports not (backdrop-filter: blur(1px)) { .nav { background: var(--paper); } }
 
 .nav__inner {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -111,10 +113,134 @@ section[id], header[id] { scroll-margin-top: 4.5rem; }
 }
 .nav__list a:hover { color: var(--accent); border-color: var(--accent); }
 
-@media (max-width: 34rem) {
-  .nav__inner { justify-content: center; padding-block: 0.6rem; }
-  .nav__me { width: 100%; text-align: center; }
-  .nav__list { justify-content: center; }
+/* --- Mobile menu: a disclosure panel below the bar, not a wrapping link row --- */
+
+.nav__toggle {
+  display: none;
+  align-items: center;
+  gap: 0.55rem;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--ink);
+  background: none;
+  border: 1px solid var(--line);
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  min-height: 2.75rem;
+}
+.nav__bars {
+  display: grid;
+  gap: 3px;
+  width: 1rem;
+}
+.nav__bars i {
+  display: block;
+  height: 2px;
+  background: currentColor;
+  transition: transform .2s ease, opacity .2s ease;
+}
+[data-open="true"] .nav__bars i:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+[data-open="true"] .nav__bars i:nth-child(2) { opacity: 0; }
+[data-open="true"] .nav__bars i:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
+
+.nav__panel {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* The collapsed menu only exists once JS has marked the nav, so with scripting
+   off the links stay in the bar as a wrapping row rather than behind a button
+   that cannot open. */
+@media (max-width: 47.999rem) {
+  .nav__inner { min-height: 3.25rem; }
+
+  [data-js] .nav__inner { flex-wrap: nowrap; }
+  [data-js] .nav__toggle { display: flex; }
+
+  [data-js] .nav__panel {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    padding: 0.5rem var(--pad) 1.25rem;
+    max-height: calc(100dvh - 3.25rem);
+    overflow-y: auto;
+  }
+  [data-js][data-open="true"] .nav__panel { display: flex; }
+
+  [data-js] .nav__list {
+    flex-direction: column;
+    gap: 0;
+    font-size: 1rem;
+  }
+  [data-js] .nav__list li { border-bottom: 1px solid var(--line-soft); }
+  [data-js] .nav__list a {
+    display: block;
+    padding: 0.85rem 0;
+    border-bottom: 0;
+    color: var(--ink);
+  }
+  [data-js] .nav__panel .wa { margin-top: 1rem; min-height: 2.75rem; }
+
+  /* No-JS fallback: everything visible, wrapping under the name. */
+  .nav__panel { flex-wrap: wrap; gap: 0.35rem 1.25rem; }
+}
+
+/* ---------- WhatsApp / call buttons ----------
+   Square-cornered like every other edge on the page; the glyph carries the
+   channel so the button does not have to shout in WhatsApp green. */
+
+.wa {
+  --wa-green: #25d366;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 2.875rem;
+  padding: 0.7rem 1.1rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  background: none;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+.wa:hover { background: var(--ink); color: var(--paper); }
+
+.wa__icon {
+  width: 1.125em;
+  height: 1.125em;
+  flex: none;
+  fill: var(--wa-green);
+}
+
+.wa--solid {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+.wa--solid:hover { background: var(--accent); border-color: var(--accent); }
+
+.wa--ghost {
+  border-color: var(--line);
+  color: var(--ink-mid);
+  font-weight: 500;
+}
+.wa--ghost:hover { background: none; color: var(--accent); border-color: var(--accent); }
+
+.wa--sm {
+  min-height: 2.5rem;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.875rem;
 }
 
 /* ---------- Shared rail grid ---------- */
@@ -572,11 +698,18 @@ section[id], header[id] { scroll-margin-top: 4.5rem; }
 }
 .contact__mail:hover { color: var(--accent); }
 
+.contact__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: clamp(1.75rem, 4vw, 2.5rem);
+}
+
 .contact__rest {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 2rem;
-  margin-top: clamp(2rem, 5vw, 3rem);
+  margin-top: clamp(1.75rem, 4vw, 2.5rem);
   padding-top: 1.25rem;
   border-top: 1px solid var(--line);
   font-size: 0.875rem;
