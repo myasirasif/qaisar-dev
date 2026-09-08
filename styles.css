@@ -222,6 +222,9 @@ section[id], header[id] { scroll-margin-top: 4.5rem; }
   flex: none;
   fill: var(--wa-green);
 }
+/* WhatsApp is the primary channel and earns its brand green; LinkedIn is
+   secondary, so its mark stays in the page's own ink. */
+.wa__icon--li { fill: currentColor; }
 
 .wa--solid {
   background: var(--ink);
